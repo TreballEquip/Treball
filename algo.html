@@ -1,7 +1,4 @@
 <style>
-    #rocket-flame {
-      opacity: 0.5;
-    }
     #logo:hover #rocket-flame {
       animation: flicker 0.8s infinite;
       opacity: 1;
@@ -37,29 +34,21 @@
       }
     }
   </style>
-  <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" id="logo">
-    <rect width="100%" height="100%" fill="#222" />
-    <g id="rocket">
-      <path d="M 50 10 L 30 60 L 70 60 Z" fill="#0072c6" />
-      <path d="M 50 10 L 40 60 L 60 60 Z" fill="#ffffff" />
-      <path d="M 40 60 L 30 70 L 70 70 L 60 60 Z" fill="#0072c6" />
-      <path d="M 30 70 L 50 80 L 70 70 L 60 60 Z" fill="#ffffff" />
-      <path d="M 40 60 L 50 80 L 60 60 Z" fill="#0072c6" />
-      <g transform="translate(50, 85)">
-        <path d="M 0 0 C 5 5, 10 20, 0 30 C -10 20, -5 5, 0 0" fill="#0072c6" id="rocket-flame" />
-      </g>
-    </g>
-  </svg>
 
-  <svg viewBox="0 0 100 100" style="transform: scaleY(-1);">
-    <g transform="translate(0,20)">
+  <svg viewBox="0 0 100 100" style="transform: scaleY(-1);" id="logo">
+    <g transform="translate(0,20)" id="rocket">
         <polygon points="0,0 0,10 5,15 5,5" fill="gray" />
         <polygon points="5,5 5,15 10,20 10,10" fill="black" />
         <polygon points="10,10 10,20 15,15 15,05" fill="red" />
         <polygon points="15,05 15,15 20,10 20,0" fill="blue" />
-        <polygon points="5,5 10,0 15,5" fill="gray" />
         <polygon points="10,20 10,30 15,25 15,15" fill="yellow"/>
         <polygon points="5,15 5,25 10,30 10,20" fill="green" />
+       
+    </g>
+    <g transform="translate(10, 15), scale(.5)">
+      <path d="M 0 0 C 5 5, 10 20, 0 20 C -10 20, -5 5, 0 0" fill="#FF0000" id="rocket-flame" />
+      <path transform="translate(0, 2.5), scale(.75)" d="M 0 0 C 5 5, 10 20, 0 20 C -10 20, -5 5, 0 0" fill="#ff8000" id="rocket-flame" />
+      <path transform="translate(0, 5), scale(.5)" d="M 0 0 C 5 5, 10 20, 0 20 C -10 20, -5 5, 0 0" fill="#ffFF00" id="rocket-flame" />
     </g>
   </svg>
   <!--- CALLATE HIJEPUTIAMALTPARI -->
