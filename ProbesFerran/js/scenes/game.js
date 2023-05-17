@@ -12,7 +12,7 @@ class GameScene extends Phaser.Scene {
 		this.bombs = null;
 		this.gameOver = false;
         this.sky = null;
-        this.skySpeed = 0.01;
+        this.skySpeed = 0.0005;
     }
     preload (){	
         this.load.image('rocket', '../resources/rocket.png');
@@ -56,8 +56,11 @@ class GameScene extends Phaser.Scene {
 				
             
             //Velocitat del cel
-            skySpeed *= 1.5;
-            this.sky.tilePositionY -= skySpeed; 
+            if(this.skySpeed <=10){
+                this.skySpeed *= 1.02;
+            }
+            
+            this.sky.tilePositionY -= this.skySpeed; 
         }
     }
 }
