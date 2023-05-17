@@ -37,3 +37,9 @@ button.menu-object:hover:not(:active){
 	height: 85px;
 }
 
+#game_area{
+	margin:auto;
+	display:block;
+	width: 800px;
+}
+
