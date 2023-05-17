@@ -12,7 +12,7 @@ class CoheteScene extends Phaser.Scene {
 		this.bombs = null;
 		this.gameOver = false;
         this.sky = null;
-        this.skySpeed = 0.0005;
+        this.skySpeed = 0.01;
     }
     preload (){	
         this.load.image('rocket', '../resources/rocket.png');
@@ -26,41 +26,56 @@ class CoheteScene extends Phaser.Scene {
         this.sky.setScale(1);
 
         //Player
-        this.player = this.physics.add.sprite(100, 500, 'rocket');
+        this.player = this.physics.add.sprite(400, 500, 'rocket');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.22);
         
 
-        this.cursors = this.input.keyboard.createCursorKeys();
+        //this.cursors = this.input.keyboard.createCursorKeys();
+        this.cursors = this.input.keyboard.addKeys({
+            up: Phaser.Input.Keyboard.KeyCodes.UP,
+            down: Phaser.Input.Keyboard.KeyCodes.DOWN,
+            left: Phaser.Input.Keyboard.KeyCodes.LEFT,
+            right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+            esc: Phaser.Input.Keyboard.KeyCodes.ESC
+            
+        });
 
     }
     update(){
         if (this.gameOver) return;
 		{ // Moviment
-			if (this.cursors.left.isDown){
-				this.player.setVelocityX(-160);
-				//this.player.anims.play('left', true);
-			}
-			else if (this.cursors.right.isDown){
-				this.player.setVelocityX(160);
-				//this.player.anims.play('right', true);
-			}
-			else{
-				this.player.setVelocityX(0);
-				//this.player.anims.play('turn');
-			}
+            if(this.cursors.esc.isDown){
+                console.log("Escape :D");
+            }
 
-			if (this.cursors.up.isDown && this.player.body.touching.down){
-                this.player.setVelocityY(-330);
-            }
-				
+           
+                if (this.cursors.left.isDown){
+                    this.player.setVelocityX(-160);
+                    //this.player.anims.play('left', true);
+                }
+                else if (this.cursors.right.isDown){
+                    this.player.setVelocityX(160);
+                    //this.player.anims.play('right', true);
+                }
+                else{
+                    this.player.setVelocityX(0);
+                    //this.player.anims.play('turn');
+                }
+    
+                if (this.cursors.up.isDown && this.player.body.touching.down){
+                    this.player.setVelocityY(-330);
+                }
+                    
+                
+                //Velocitat del cel
+                if(this.skySpeed <=7){
+                    this.skySpeed *= 1.02;
+                }
+                
+                this.sky.tilePositionY -= this.skySpeed; 
             
-            //Velocitat del cel
-            if(this.skySpeed <=10){
-                this.skySpeed *= 1.02;
-            }
-            
-            this.sky.tilePositionY -= this.skySpeed; 
+			
         }
     }
 }
