@@ -1,10 +1,15 @@
 "use strict";
 
+const ENEMY_VEL = 200
+const BG_MAX_VEL = 1
+const BG_ACCELERATION = 1.01
+
 class CoheteScene extends Phaser.Scene {
     constructor (){
         super('GameScene');
 		this.platforms = null;
 		this.player = null;
+        this.enemies = null
 		this.cursors = null;
 		this.stars = null;
 		this.score = 0;
@@ -18,6 +23,7 @@ class CoheteScene extends Phaser.Scene {
     preload (){	
         this.load.image('rocket', '../resources/rocket.png');
         this.load.image('sky','../resources/sky.png');
+        this.load.image('enemy','../resources/MIERDA.png');
     }
 
     create(){
@@ -27,10 +33,14 @@ class CoheteScene extends Phaser.Scene {
         this.sky.setScale(1);
 
         //Player
-        this.player = this.physics.add.sprite(400, 810, 'rocket');
+        this.player = this.physics.add.sprite(config.width / 2, config.height * 0.9, 'rocket');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.22);
-        
+
+        //Enemy
+        this.enemies = this.physics.add.group();
+        this.createEnemy();
+        this.physics.add.collider(this.player, this.enemies, (body1, body2) => this.hitEnemy(body1, body2));
 
         //this.cursors = this.input.keyboard.createCursorKeys();
         this.cursors = this.input.keyboard.addKeys({
@@ -39,16 +49,15 @@ class CoheteScene extends Phaser.Scene {
             left: Phaser.Input.Keyboard.KeyCodes.LEFT,
             right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
             esc: Phaser.Input.Keyboard.KeyCodes.ESC
-            
         });
-
     }
     update(){
-        if (this.gameOver || this.gamePaused) return;
-		{ // Moviment
+        if (!(this.gameOver || this.gamePaused)) {
+		    // Moviment
             if(this.cursors.esc.isDown){
                 this.gamePaused = true;
             }
+            
             if (this.cursors.left.isDown){
                 this.player.setVelocityX(-160);
                 //this.player.anims.play('left', true);
@@ -57,7 +66,7 @@ class CoheteScene extends Phaser.Scene {
                 this.player.setVelocityX(160);
                 //this.player.anims.play('right', true);
             }
-            else{
+            else {
                 this.player.setVelocityX(0);
                 //this.player.anims.play('turn');
             }
@@ -68,13 +77,26 @@ class CoheteScene extends Phaser.Scene {
                 
             
             //Velocitat del cel
-            if(this.skySpeed <=7){
-                this.skySpeed *= 1.02;
-            }
-                
+            if (this.skySpeed <= 1) {
+                this.skySpeed *= 1.01;
+            }   
             this.sky.tilePositionY -= this.skySpeed; 
             
+
+            //Enemics
+           
 			
         }
+    }
+    createEnemy() {
+        var enemy = this.enemies.create(Phaser.Math.Between(0, 900), -1000, 'enemy')
+        enemy.setVelocity(ENEMY_VEL, (Phaser.Math.Between(0, 1) === 0 ? -1 : 1) * ENEMY_VEL)
+        enemy.setScale(.25)
+    }
+
+    hitEnemy(player, enemy) {
+        this.physics.pause();
+        setTimeout(() => loadpage("../"), 3000);
+        this.gameOver = true
     }
 }
