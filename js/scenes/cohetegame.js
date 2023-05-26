@@ -11,6 +11,7 @@ class CoheteScene extends Phaser.Scene {
 		this.scoreText;
 		this.bombs = null;
 		this.gameOver = false;
+        this.gamePaused = false
         this.sky = null;
         this.skySpeed = 0.01;
     }
@@ -26,7 +27,7 @@ class CoheteScene extends Phaser.Scene {
         this.sky.setScale(1);
 
         //Player
-        this.player = this.physics.add.sprite(400, 500, 'rocket');
+        this.player = this.physics.add.sprite(400, 810, 'rocket');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.22);
         
@@ -43,37 +44,35 @@ class CoheteScene extends Phaser.Scene {
 
     }
     update(){
-        if (this.gameOver) return;
+        if (this.gameOver || this.gamePaused) return;
 		{ // Moviment
             if(this.cursors.esc.isDown){
-                console.log("Escape :D");
+                this.gamePaused = true;
+            }
+            if (this.cursors.left.isDown){
+                this.player.setVelocityX(-160);
+                //this.player.anims.play('left', true);
+            }
+            else if (this.cursors.right.isDown){
+                this.player.setVelocityX(160);
+                //this.player.anims.play('right', true);
+            }
+            else{
+                this.player.setVelocityX(0);
+                //this.player.anims.play('turn');
             }
 
-           
-                if (this.cursors.left.isDown){
-                    this.player.setVelocityX(-160);
-                    //this.player.anims.play('left', true);
-                }
-                else if (this.cursors.right.isDown){
-                    this.player.setVelocityX(160);
-                    //this.player.anims.play('right', true);
-                }
-                else{
-                    this.player.setVelocityX(0);
-                    //this.player.anims.play('turn');
-                }
-    
-                if (this.cursors.up.isDown && this.player.body.touching.down){
-                    this.player.setVelocityY(-330);
-                }
-                    
+            /*if (this.cursors.up.isDown && this.player.body.touching.down){
+                this.player.setVelocityY(-330);
+            }*/
                 
-                //Velocitat del cel
-                if(this.skySpeed <=7){
-                    this.skySpeed *= 1.02;
-                }
+            
+            //Velocitat del cel
+            if(this.skySpeed <=7){
+                this.skySpeed *= 1.02;
+            }
                 
-                this.sky.tilePositionY -= this.skySpeed; 
+            this.sky.tilePositionY -= this.skySpeed; 
             
 			
         }

@@ -41,5 +41,7 @@ button.menu-object:hover:not(:active){
 	margin:auto;
 	display:block;
 	width: 800px;
+	height:800px;
+	margin-top:15px;
 }
 
