@@ -14,6 +14,7 @@ class CoheteScene extends Phaser.Scene {
 		this.platforms = null;
 		this.player = null;
         this.ammo = null;
+        this.ammoPhoto = null;
         this.enemies = null
 		this.cursors = null;
 		this.stars = null;
@@ -32,6 +33,7 @@ class CoheteScene extends Phaser.Scene {
         this.load.image('m1','../resources/background/m1.png');
         this.load.image('m2','../resources/background/m2.png');
         this.load.image('m3','../resources/background/m3.png');
+        this.load.image('ammo_logo','../resources/municio.png');
 
         //spritesheet rocket
         this.load.spritesheet('rocket',
@@ -136,6 +138,7 @@ class CoheteScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(config.width / 2, config.height * 0.9, 'rocket');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.22);
+
         //player anim
         this.player.anims.create({
             key: 'rocketAnim',
@@ -153,17 +156,21 @@ class CoheteScene extends Phaser.Scene {
         //Bales
         this.ammo = this.physics.add.group();
         this.physics.add.collider(this.ammo, this.enemies, (body1, body2) => this.collisionAmmoEnemy(body1, body2));
+        this.input.on('pointerdown', this.createBullet, this)
 
-        //this.cursors = this.input.keyboard.createCursorKeys();
+        //UI
+        this.scoreText = this.add.text(80, config.height - 62, '0', { fontSize: "32px", fill: '#000' });
+        this.ammoPhoto = this.add.image(50, config.height - 48, 'ammo_logo')
+        this.ammoPhoto.setScale(.1)
+
+        //Moviment
         this.cursors = this.input.keyboard.addKeys({
-            up: Phaser.Input.Keyboard.KeyCodes.UP,
-            down: Phaser.Input.Keyboard.KeyCodes.DOWN,
             left: Phaser.Input.Keyboard.KeyCodes.LEFT,
             right: Phaser.Input.Keyboard.KeyCodes.RIGHT,
+            a: Phaser.Input.Keyboard.KeyCodes.A,
+            d: Phaser.Input.Keyboard.KeyCodes.D,
             esc: Phaser.Input.Keyboard.KeyCodes.ESC,
         });
-
-        this.input.on('pointerdown', this.createBullet, this)
     }
     update(){
         if (!(this.gameOver || this.gamePaused)) {
@@ -172,23 +179,22 @@ class CoheteScene extends Phaser.Scene {
                 this.gamePaused = true;
             }
             
-            if (this.cursors.left.isDown){
+            if (this.cursors.left.isDown || this.cursors.a.isDown){
                 this.player.setVelocityX(-PLAYER_VEL);
-                //this.player.anims.play('left', true);
+
+                if (this.player.rotation >= Math.PI / -4) this.player.rotation -= Math.PI / 64
             }
-            else if (this.cursors.right.isDown){
+            else if (this.cursors.right.isDown || this.cursors.d.isDown){
                 this.player.setVelocityX(PLAYER_VEL);
-                //this.player.anims.play('right', true);
+                
+                if (this.player.rotation <= Math.PI / 4) this.player.rotation += Math.PI / 64
             }
             else {
                 this.player.setVelocityX(0);
-                //this.player.anims.play('turn');
+                if (this.player.rotation > 0.1) this.player.rotation -= Math.PI / 64
+                else if (this.player.rotation < -0.1) this.player.rotation += Math.PI / 64
+                else this.player.rotation = 0
             }
-
-            /*if (this.cursors.up.isDown && this.player.body.touching.down){
-                this.player.setVelocityY(-330);
-            }*/
-                
             
             //Velocitat del cel
             if (this.skySpeed <= 1) {
@@ -199,15 +205,11 @@ class CoheteScene extends Phaser.Scene {
             this.m1.setVelocityY(this.skySpeed*70);
             this.m2.setVelocityY(this.skySpeed*65);
             this.m3.setVelocityY(this.skySpeed*55);
+            
             //hem de afegir que s'eliminin quan ja no es veuen 
 
 
-        
-            //Enemics
-
-
-            //Bales
-            //console.log("player pos: " + this.player.x + " " + this.player.y)
+            
         }
     }
     createEnemy() {
@@ -233,8 +235,6 @@ class CoheteScene extends Phaser.Scene {
         var velInicialX = Phaser.Math.Between(50, 200);
 
         enemy.setVelocity(velInicialX * direccio, ENEMY_VEL)
-
-        console.log(velInicialX * direccio)
     }
 
     createBullet(pointer) {
@@ -243,11 +243,15 @@ class CoheteScene extends Phaser.Scene {
 
         var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY);
 
-        var bala = this.ammo.create(this.player.x, this.player.y - 65, 'misil');
+        var velX = velOffsetX / modulVel
+        var velY = velOffsetY / modulVel
+
+        var bala = this.ammo.create(this.player.x + (this.player.rotation * 100), (this.player.y - 100) + (Math.abs(this.player.rotation) * 50), 'misil');
         bala.anims.play('misilAnim');
-        bala.setVelocity(velOffsetX * BULLET_VEL / modulVel, velOffsetY * BULLET_VEL / modulVel);
+        bala.setVelocity(velX * BULLET_VEL, velY * BULLET_VEL);
         bala.setScale(.7);
-        bala.rotation = -(Math.PI / 2);
+       // bala.rotation = -(Math.PI / 2);
+        bala.rotation = -Math.atan(velOffsetX/velOffsetY) - Math.PI / 2;
     }
 
     collisionEnemyPlayer(enemy, player) {
