@@ -25,6 +25,8 @@ class CoheteScene extends Phaser.Scene {
         this.gamePaused = false
         this.sky = null;
         this.skySpeed = 0.01;
+        this.boxAmmo = null;
+        this.showLand = true;
     }
     preload (){	
         this.load.image('sky','../resources/background/sky.png');
@@ -34,6 +36,7 @@ class CoheteScene extends Phaser.Scene {
         this.load.image('m2','../resources/background/m2.png');
         this.load.image('m3','../resources/background/m3.png');
         this.load.image('ammo_logo','../resources/municio.png');
+        this.load.image('boxAmmo','../resources/ammoBox.png')
 
         //spritesheet rocket
         this.load.spritesheet('rocket',
@@ -158,6 +161,11 @@ class CoheteScene extends Phaser.Scene {
         this.physics.add.collider(this.ammo, this.enemies, (body1, body2) => this.collisionAmmoEnemy(body1, body2));
         this.input.on('pointerdown', this.createBullet, this)
 
+        //BoxAmmo
+        this.boxAmmo = this.physics.add.group();
+        this.physics.add.overlap(this.boxAmmo, this.player, (body1, body2) => this.collisionBoxAmmoPlayer(body1, body2));
+        this.createBoxAmmo()
+
         //UI
         this.scoreText = this.add.text(80, config.height - 62, '0', { fontSize: "32px", fill: '#000' });
         this.ammoPhoto = this.add.image(50, config.height - 48, 'ammo_logo')
@@ -171,6 +179,15 @@ class CoheteScene extends Phaser.Scene {
             d: Phaser.Input.Keyboard.KeyCodes.D,
             esc: Phaser.Input.Keyboard.KeyCodes.ESC,
         });
+
+        //Quan pasin 15 segons elimina el terra
+        setTimeout(() => {
+            this.showLand = false;
+            this.m1.destroy();
+            this.m2.destroy();
+            this.m3.destroy();
+            this.land.destroy();
+        }, 15000);
     }
     update(){
         if (!(this.gameOver || this.gamePaused)) {
@@ -197,14 +214,18 @@ class CoheteScene extends Phaser.Scene {
             }
             
             //Velocitat del cel
-            if (this.skySpeed <= 1) {
+            if (this.skySpeed <= 3) {
                 this.skySpeed *= 1.01;
-            }   
+            }else if(this.skySpeed <= 10){
+                this.skySpeed *= 1.0005;
+            }
             this.sky.tilePositionY -= this.skySpeed; 
-            this.land.setVelocityY(this.skySpeed*75);
-            this.m1.setVelocityY(this.skySpeed*70);
-            this.m2.setVelocityY(this.skySpeed*65);
-            this.m3.setVelocityY(this.skySpeed*55);
+            if(this.showLand){
+                this.land.setVelocityY(this.skySpeed*75);
+                this.m1.setVelocityY(this.skySpeed*70);
+                this.m2.setVelocityY(this.skySpeed*65);
+                this.m3.setVelocityY(this.skySpeed*55);
+            }
             
             //hem de afegir que s'eliminin quan ja no es veuen 
 
@@ -254,6 +275,21 @@ class CoheteScene extends Phaser.Scene {
         bala.rotation = -Math.atan(velOffsetX/velOffsetY) - Math.PI / 2;
     }
 
+    createBoxAmmo(){
+        // x[50, 850] y=-1000
+        //velY = [50,300]
+        console.log("Drop");
+        var bX = Phaser.Math.Between(50, 850);
+        var bY = -1000;
+        var caixa = this.boxAmmo.create(bX,bY,'boxAmmo');
+        caixa.setScale(0.2);
+        var velY = Phaser.Math.Between(50, 300);
+        caixa.setVelocityY(velY);
+        setTimeout(() => {
+            this.createBoxAmmo();
+        }, 20000);
+    }
+
     collisionEnemyPlayer(enemy, player) {
         this.physics.pause();
         setTimeout(() => loadpage("../"), 3000);
@@ -263,5 +299,8 @@ class CoheteScene extends Phaser.Scene {
         console.log("TOCADO Y HUNDIDO PUTA");
         ammo.destroy();
         enemy.destroy();
+    }
+    collisionBoxAmmoPlayer(player,boxAmmo){
+        boxAmmo.destroy();
     }
 }
