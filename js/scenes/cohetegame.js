@@ -31,6 +31,9 @@ class CoheteScene extends Phaser.Scene {
         this.shield = null;
         this.fuelBarrel = null;
         this.fuelDownBarrel = null;
+        this.isInvincible = false;
+        this.actualFuel = 100;
+        this.fuelDecrease = 0.1;
     }
     preload (){	
         this.load.image('sky','../resources/background/sky.png');
@@ -217,6 +220,9 @@ class CoheteScene extends Phaser.Scene {
             this.managePowerDowns();
         }, 2000);
 
+        //Activar el consum de combustible
+        this.fuelDecreaser();
+
         //Quan pasin 15 segons elimina el terra
         setTimeout(() => {
             this.showLand = false;
@@ -264,12 +270,24 @@ class CoheteScene extends Phaser.Scene {
                 this.m3.setVelocityY(this.skySpeed*55);
             }
             
-            //hem de afegir que s'eliminin quan ja no es veuen 
+            if(this.actualFuel <=0){
+                this.fuelEmpty();
+            }
 
+            
 
             
         }
     }
+
+    fuelDecreaser(){
+        this.actualFuel -= this.fuelDecrease;
+        console.log(this.actualFuel);
+        setTimeout(() => {
+            this.fuelDecreaser();
+        }, 500);
+    }
+
     createEnemy() {
         //basat en l'altura podem fer pajaros o avions
         //si altura < de noseque
@@ -398,10 +416,18 @@ class CoheteScene extends Phaser.Scene {
         }, 15000);
     }
 
-    collisionEnemyPlayer(enemy, player) {
+    fuelEmpty(){
         this.physics.pause();
         setTimeout(() => loadpage("../"), 3000);
         this.gameOver = true;
+    }
+
+    collisionEnemyPlayer(enemy, player) {
+        if(!this.isInvincible){
+            this.physics.pause();
+            setTimeout(() => loadpage("../"), 3000);
+            this.gameOver = true;
+        }
     }
     collisionAmmoEnemy(ammo, enemy) {
         console.log("TOCADO Y HUNDIDO PUTA");
@@ -415,19 +441,26 @@ class CoheteScene extends Phaser.Scene {
     }
     collisionShieldPlayer(player, shield){
         shield.destroy();
+        this.isInvincible = true;
         this.player.anims.play('rocketAnim2', true);
         setTimeout(() => {
             this.player.anims.play('rocketAnim', true);
+            this.isInvincible = false;
         }, 15000);
     }
 
     collisionFuelPlayer(player,fuelBarrel){
         fuelBarrel.destroy();
-        //Falta completar per incrementar combustible
+        this.actualFuel += 10;
+        if(this.actualFuel > 100)
+         this.actualFuel=100;
     }
 
     collisionFuelDownPlayer(player,fuelDownBarrel){
         fuelDownBarrel.destroy();
-        //Falta completar per aumentar el consum durant x segons
+        this.fuelDecrease=1;
+        setTimeout(() => {
+            this.fuelDecrease=0.1;
+        }, 10000);
     }
 }
