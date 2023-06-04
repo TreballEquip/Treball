@@ -24,9 +24,62 @@ class CoheteScene extends Phaser.Scene {
         this.load.image('rocket', '../resources/rocket.png');
         this.load.image('sky','../resources/sky.png');
         this.load.image('enemy','../resources/MIERDA.png');
-    }
 
+        this.load.spritesheet('Bird_BR',
+			'../resources/Pajaritos_brown.png',
+			{ frameWidth: 123, frameHeight: 96 }
+		);
+
+        this.load.spritesheet('Bird_WH',
+			'../resources/Pajaritos_white.png',
+			{ frameWidth: 185, frameHeight: 144 }
+		);
+
+        this.load.spritesheet('Bird_BL',
+			'../resources/Pajaritos_black.png',
+			{ frameWidth: 123, frameHeight: 96 }
+		);
+    }
     create(){
+
+         //Bird anims
+         this.anims.create({
+            key: 'bird_right_WH',
+            frames: this.anims.generateFrameNumbers('Bird_WH', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1 
+          });
+        this.anims.create({
+            key: 'bird_left_WH',
+            frames: this.anims.generateFrameNumbers('Bird_WH', { start: 4, end: 7 }),
+            frameRate: 10,
+            repeat: -1 
+          });
+        this.anims.create({
+            key: 'bird_right_BL',
+            frames: this.anims.generateFrameNumbers('Bird_BL', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1 
+          });
+        this.anims.create({
+            key: 'bird_left_BL',
+            frames: this.anims.generateFrameNumbers('Bird_BL', { start: 4, end: 7 }),
+            frameRate: 10,
+            repeat: -1 
+          });
+        this.anims.create({
+            key: 'bird_right_BR',
+            frames: this.anims.generateFrameNumbers('Bird_BR', { start: 0, end: 3 }),
+            frameRate: 10,
+            repeat: -1 
+          });
+        this.anims.create({
+            key: 'bird_left_BR',
+            frames: this.anims.generateFrameNumbers('Bird_BR', { start: 4, end: 7 }),
+            frameRate: 10,
+            repeat: -1 
+          });
+
         //Sky
         this.sky = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'sky');
         this.sky.setOrigin(0, 0);
@@ -89,9 +142,13 @@ class CoheteScene extends Phaser.Scene {
         }
     }
     createEnemy() {
-        var enemy = this.enemies.create(Phaser.Math.Between(0, 900), -1000, 'enemy')
+        var enemy = this.enemies.create(0 , 0 , 'Bird_WH')
+        enemy.anims.play('bird_right_WH');
         enemy.setVelocity(ENEMY_VEL, (Phaser.Math.Between(0, 1) === 0 ? -1 : 1) * ENEMY_VEL)
+
         enemy.setScale(.25)
+
+
     }
 
     hitEnemy(player, enemy) {
