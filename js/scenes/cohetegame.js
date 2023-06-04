@@ -25,6 +25,12 @@ class CoheteScene extends Phaser.Scene {
         this.gamePaused = false
         this.sky = null;
         this.skySpeed = 0.01;
+        this.boxAmmo = null;
+        this.showLand = true;
+        this.nAmmo = 2;
+        this.shield = null;
+        this.fuelBarrel = null;
+        this.fuelDownBarrel = null;
     }
     preload (){	
         this.load.image('sky','../resources/background/sky.png');
@@ -34,12 +40,21 @@ class CoheteScene extends Phaser.Scene {
         this.load.image('m2','../resources/background/m2.png');
         this.load.image('m3','../resources/background/m3.png');
         this.load.image('ammo_logo','../resources/municio.png');
+        this.load.image('boxAmmo','../resources/ammoBox.png');
+        this.load.image('shield','../resources/shield.png');
+        this.load.image('fuelBarrel','../resources/fuelBarrel.png');
+        this.load.image('fuelDownBarrel','../resources/fuelDownBarrel.png');
 
         //spritesheet rocket
         this.load.spritesheet('rocket',
 			'../resources/cohete/rocket.png',
 			{ frameWidth: 320, frameHeight: 672 }
 		);
+
+        this.load.spritesheet('rocketShield',
+            '../resources/cohete/rocketShield.png',
+            { frameWidth: 320, frameHeight: 672 }
+        );
 
         //spritesheet pajaros
         this.load.spritesheet('Bird_BR',
@@ -146,6 +161,12 @@ class CoheteScene extends Phaser.Scene {
 			frameRate: 10,
 			repeat: -1
         });
+        this.player.anims.create({
+            key: 'rocketAnim2',
+			frames: this.anims.generateFrameNumbers('rocketShield', { start: 0, end: 8 }),
+			frameRate: 10,
+			repeat: -1
+        });
         this.player.anims.play('rocketAnim', true);
 
         //Enemy
@@ -156,10 +177,28 @@ class CoheteScene extends Phaser.Scene {
         //Bales
         this.ammo = this.physics.add.group();
         this.physics.add.collider(this.ammo, this.enemies, (body1, body2) => this.collisionAmmoEnemy(body1, body2));
-        this.input.on('pointerdown', this.createBullet, this)
+        this.input.on('pointerdown', this.createBullet, this);
 
+        //BoxAmmo
+        this.boxAmmo = this.physics.add.group();
+        this.physics.add.overlap(this.boxAmmo, this.player, (body1, body2) => this.collisionBoxAmmoPlayer(body1, body2));
+
+
+        //Shield
+        this.shield = this.physics.add.group();
+        this.physics.add.overlap(this.shield, this.player, (body1, body2) => this.collisionShieldPlayer(body1, body2));
+
+
+        //FuelBarrel
+        this.fuelBarrel = this.physics.add.group();
+        this.physics.add.overlap(this.fuelBarrel, this.player, (body1, body2) => this.collisionFuelPlayer(body1, body2));
+        
+        //FuelDOwnBarrel
+        this.fuelDownBarrel = this.physics.add.group();
+        this.physics.add.overlap(this.fuelDownBarrel, this.player, (body1, body2) => this.collisionFuelDownPlayer(body1, body2));
+      
         //UI
-        this.scoreText = this.add.text(80, config.height - 62, '0', { fontSize: "32px", fill: '#000' });
+        this.scoreText = this.add.text(80, config.height - 62, this.nAmmo, { fontSize: "32px", fill: '#000' });
         this.ammoPhoto = this.add.image(50, config.height - 48, 'ammo_logo')
         this.ammoPhoto.setScale(.1)
 
@@ -171,6 +210,21 @@ class CoheteScene extends Phaser.Scene {
             d: Phaser.Input.Keyboard.KeyCodes.D,
             esc: Phaser.Input.Keyboard.KeyCodes.ESC,
         });
+
+        //Llançar power ups
+        this.managePowerUps();
+        setTimeout(() => {
+            this.managePowerDowns();
+        }, 2000);
+
+        //Quan pasin 15 segons elimina el terra
+        setTimeout(() => {
+            this.showLand = false;
+            this.m1.destroy();
+            this.m2.destroy();
+            this.m3.destroy();
+            this.land.destroy();
+        }, 15000);
     }
     update(){
         if (!(this.gameOver || this.gamePaused)) {
@@ -197,14 +251,18 @@ class CoheteScene extends Phaser.Scene {
             }
             
             //Velocitat del cel
-            if (this.skySpeed <= 1) {
+            if (this.skySpeed <= 3) {
                 this.skySpeed *= 1.01;
-            }   
+            }else if(this.skySpeed <= 10){
+                this.skySpeed *= 1.0005;
+            }
             this.sky.tilePositionY -= this.skySpeed; 
-            this.land.setVelocityY(this.skySpeed*75);
-            this.m1.setVelocityY(this.skySpeed*70);
-            this.m2.setVelocityY(this.skySpeed*65);
-            this.m3.setVelocityY(this.skySpeed*55);
+            if(this.showLand){
+                this.land.setVelocityY(this.skySpeed*75);
+                this.m1.setVelocityY(this.skySpeed*70);
+                this.m2.setVelocityY(this.skySpeed*65);
+                this.m3.setVelocityY(this.skySpeed*55);
+            }
             
             //hem de afegir que s'eliminin quan ja no es veuen 
 
@@ -238,20 +296,106 @@ class CoheteScene extends Phaser.Scene {
     }
 
     createBullet(pointer) {
-        var velOffsetX = pointer.x - this.player.x;
-        var velOffsetY = pointer.y - this.player.y;
+        if(this.nAmmo >0){
+            this.nAmmo--;
+            this.scoreText.setText(this.nAmmo);
+            var velOffsetX = pointer.x - this.player.x;
+            var velOffsetY = pointer.y - this.player.y;
 
-        var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY);
+            var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY);
 
-        var velX = velOffsetX / modulVel
-        var velY = velOffsetY / modulVel
+            var velX = velOffsetX / modulVel
+            var velY = velOffsetY / modulVel
 
-        var bala = this.ammo.create(this.player.x + (this.player.rotation * 100), (this.player.y - 100) + (Math.abs(this.player.rotation) * 50), 'misil');
-        bala.anims.play('misilAnim');
-        bala.setVelocity(velX * BULLET_VEL, velY * BULLET_VEL);
-        bala.setScale(.7);
-       // bala.rotation = -(Math.PI / 2);
-        bala.rotation = -Math.atan(velOffsetX/velOffsetY) - Math.PI / 2;
+            var bala = this.ammo.create(this.player.x + (this.player.rotation * 100), (this.player.y - 100) + (Math.abs(this.player.rotation) * 50), 'misil');
+            bala.anims.play('misilAnim');
+            bala.setVelocity(velX * BULLET_VEL, velY * BULLET_VEL);
+            bala.setScale(.7);
+        // bala.rotation = -(Math.PI / 2);
+            bala.rotation = -Math.atan(velOffsetX/velOffsetY) - Math.PI / 2;
+        }
+    }
+    managePowerUps(){
+        var randomPowerUp = Phaser.Math.Between(1, 4);
+        if(randomPowerUp == 1){
+            this.createBoxAmmo();
+        }else if(randomPowerUp == 2 || randomPowerUp == 4){
+            this.createFuel();
+        }else if(randomPowerUp == 3){
+            this.createShield();
+        }else if(randomPowerUp == 5){
+            this.createFuelDown();
+        }
+        setTimeout(() => {
+            this.managePowerUps();
+        }, 16000);
+
+    }
+
+    managePowerDowns(){
+        var randomTime = Phaser.Math.Between(1, 15);
+        this.createFuelDown();
+        setTimeout(() => {
+            this.managePowerDowns();
+        }, randomTime*1000);
+    }
+
+    createBoxAmmo(){
+        // x[50, 850] y=-1000
+        //velY = [50,300]
+        console.log("Drop");
+        var bX = Phaser.Math.Between(50, 850);
+        var bY = -1000;
+        var caixa = this.boxAmmo.create(bX,bY,'boxAmmo');
+        caixa.setScale(0.2);
+        var velY = 300;
+        caixa.setVelocityY(velY);
+        setTimeout(() => {
+            caixa.destroy();
+        }, 15000);
+    }
+
+    createShield(){
+        // x[50, 850] y=-1000
+        //velY = [50,300]
+        console.log("Drop");
+        var bX = Phaser.Math.Between(50, 850);
+        var bY = -1000;
+        var escut = this.shield.create(bX,bY,'shield');
+        escut.setScale(0.15);
+        var velY = 300;
+        escut.setVelocityY(velY);
+        setTimeout(() => {
+            escut.destroy();
+        }, 15000);
+    }
+
+    createFuel(){
+        // x[50, 850] y=-1000
+        //velY = [50,300]
+        console.log("Drop");
+        var bX = Phaser.Math.Between(50, 850);
+        var bY = -1000;
+        var combustible = this.fuelBarrel.create(bX,bY,'fuelBarrel');
+        combustible.setScale(0.15);
+        var velY = 300;
+        combustible.setVelocityY(velY);
+        setTimeout(() => {
+            combustible.destroy();
+        }, 15000);
+    }
+
+    createFuelDown(){
+        console.log("Drop");
+        var bX = Phaser.Math.Between(50, 850);
+        var bY = -1000;
+        var downCombustible = this.fuelDownBarrel.create(bX,bY,'fuelDownBarrel');
+        downCombustible.setScale(0.15);
+        var velY = 300;
+        downCombustible.setVelocityY(velY);
+        setTimeout(() => {
+            downCombustible.destroy();
+        }, 15000);
     }
 
     collisionEnemyPlayer(enemy, player) {
@@ -263,5 +407,27 @@ class CoheteScene extends Phaser.Scene {
         console.log("TOCADO Y HUNDIDO PUTA");
         ammo.destroy();
         enemy.destroy();
+    }
+    collisionBoxAmmoPlayer(player,boxAmmo){
+        boxAmmo.destroy();
+        this.nAmmo++;
+        this.scoreText.setText(this.nAmmo);
+    }
+    collisionShieldPlayer(player, shield){
+        shield.destroy();
+        this.player.anims.play('rocketAnim2', true);
+        setTimeout(() => {
+            this.player.anims.play('rocketAnim', true);
+        }, 15000);
+    }
+
+    collisionFuelPlayer(player,fuelBarrel){
+        fuelBarrel.destroy();
+        //Falta completar per incrementar combustible
+    }
+
+    collisionFuelDownPlayer(player,fuelDownBarrel){
+        fuelDownBarrel.destroy();
+        //Falta completar per aumentar el consum durant x segons
     }
 }
