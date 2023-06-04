@@ -6,35 +6,72 @@ input[type=number]{
     text-align: center;
 }
 
-#title{
-	font-size: 26px;
-	line-height: 75px;
+body{
+	background-color: #af8f8f;
 }
 
-.menu-object{
-	display:block;
-	margin-left: auto;
-	margin-right: auto;
-	width: 300px;
-	height: 75px;
-	font-size: 16px;
-	margin-top: 10px;
+.menu-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
 }
 
-p{
+#title {
+	font-size: 36px; 
+	font-family: 'VT323', monospace;
 	text-align: center;
+	margin-bottom: 20px;
+	font-weight: bold; 
+	text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); 
 }
 
-button.menu-object:active{
-	font-size: 18px;
-	width: 275px;
-	height: 70px;
+.menu-object {
+    display: block;
+    margin: 10px auto;
+    width: 300px;
+    height: 75px;
+    font-size: 16px;
+    margin-top: 10px;
+    text-align: center;
+    background-color: #c53c3c; /* Red */
+    color: #FFFFFF; /* White */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: all 0.3s ease;
 }
 
-button.menu-object:hover:not(:active){
-	font-size: 22px;
-	width: 325px;
-	height: 85px;
+.button {
+    display: block;
+    width: 250px; 
+    height: 60px; 
+    padding: 10px 20px;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 5px;
+    cursor: pointer;
+    background-color: #555555; 
+    color: white;
+    transition: background-color 0.3s ease;
+  }
+
+button.menu-object:active {
+    font-size: 18px;
+    width: 275px;
+    height: 70px;
+	background-color: #cab7b7; 
+}
+
+button.menu-object:hover:not(:active) {
+    font-size: 22px;
+    width: 325px;
+    height: 85px;
+	background-color: #ff0000; 
 }
 
 #game_area{
@@ -45,3 +82,30 @@ button.menu-object:hover:not(:active){
 	margin-top:15px;
 }
 
+
+/*logo stuff*/
+svg{
+	width: 100%; /* Ajusta el ancho del SVG al 100% del contenedor */
+	height: auto; /* Ajusta la altura automáticamente */
+	transform: scale(-0.1); /* Escala el SVG al 80% del tamaño original */
+	margin-bottom: -1000px; 
+	/*He perdut un 99% de neurones fent aixo, 
+	pero es l'unica forma que tinc de fer que el coet no tingui un height impossible 
+	(que no ho entenc pq si vaig al inspector em diu que no nomes no te ni margin ni padding 
+	si no que el height i width s'adapta al contingut) 
+	ES A  DIR S'ESTA CREANT ESPAI DEL NO RES I NO SE PERQUE*/
+	margin-top: -1030px;
+}
+
+#rocket:hover {
+	animation: rotate 3s linear infinite alternate;
+	transform-origin: center center;
+}
+  
+  @keyframes rotate {
+	0% {transform: rotate(0) scale(-0.1); }
+	25% { transform: rotate(30deg) scale(-0.1); }
+	50% { transform: rotate(0) scale(-0.1); }
+	75% { transform: rotate(-30deg) scale(-0.1); }
+	100% { transform: rotate(0) scale(-0.1); }
+}

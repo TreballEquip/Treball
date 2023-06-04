@@ -4,12 +4,30 @@
 		<link rel="stylesheet" href="./styles/main.css">
 		<script src="./js/loader.js"></script>
 		<script src="./js/menu_controller.js"></script>
-		<title> My first game - Menu </title>
+		<title> LA LIGA DE LOS COHETES </title>
 	</head>
 	<body>
-		<p class="menu-object" id="title">Memory menu</p>
-		<button class="menu-object" onclick="start_game()"> 
-			PLAY GAME
-		</button>
+		<div class="menu-container">
+			<p id="title">LA LIGA DE LOS COHETES</p>
+			<svg xmlns="http://www.w3.org/2000/svg" width="20" height="30" viewBox="0 0 20 30" id="rocket">
+				<g>
+					<polygon points="0,0 0,10 5,15 5,5" fill="#FF0000" /> 
+					<polygon points="15,05 15,15 20,10 20,0" fill="#FF0000" /> 
+					<polygon points="10,20 10,30 15,25 15,15" fill="#FF8080" />
+					<polygon points="5,5 5,15 10,20 10,10" fill="#FF8080" /> 
+					<polygon points="10,10 10,20 15,15 15,05" fill="#FFD9D9" /> 
+					<polygon points="5,15 5,25 10,30 10,20" fill="#FFD9D9" /> 
+				</g>
+				<g transform="translate(10, 0), scale(.5)" id="rocket_flame">
+					<path d="M 0 0 C 5 5, 10 20, 0 20 C -10 20, -5 5, 0 0" fill="#0066FF" /> 
+					<path transform="translate(0, 2.5), scale(.75)" d="M 0 0 C 5 5, 10 20, 0 20 C -10 20, -5 5, 0 0" fill="#66CCFF" /> 
+					<path transform="translate(0, 5), scale(.5)" d="M 0 0 C 5 5, 10 20, 0 20 C -10 20, -5 5, 0 0" fill="#FFFFFF" /> 
+				</g>
+				</svg>
+	
+			<button class="menu-object" onclick="start_game()"> 
+				PLAY GAME
+			</button>
+		</div>
 	</body>
 </html>
