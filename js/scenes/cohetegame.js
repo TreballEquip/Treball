@@ -27,6 +27,7 @@ class CoheteScene extends Phaser.Scene {
         this.skySpeed = 0.01;
         this.boxAmmo = null;
         this.showLand = true;
+        this.nAmmo = 2;
     }
     preload (){	
         this.load.image('sky','../resources/background/sky.png');
@@ -167,7 +168,7 @@ class CoheteScene extends Phaser.Scene {
         this.createBoxAmmo()
 
         //UI
-        this.scoreText = this.add.text(80, config.height - 62, '0', { fontSize: "32px", fill: '#000' });
+        this.scoreText = this.add.text(80, config.height - 62, this.nAmmo, { fontSize: "32px", fill: '#000' });
         this.ammoPhoto = this.add.image(50, config.height - 48, 'ammo_logo')
         this.ammoPhoto.setScale(.1)
 
@@ -259,20 +260,24 @@ class CoheteScene extends Phaser.Scene {
     }
 
     createBullet(pointer) {
-        var velOffsetX = pointer.x - this.player.x;
-        var velOffsetY = pointer.y - this.player.y;
+        if(this.nAmmo >0){
+            this.nAmmo--;
+            this.scoreText = this.add.text(80, config.height - 62, this.nAmmo, { fontSize: "32px", fill: '#000' });
+            var velOffsetX = pointer.x - this.player.x;
+            var velOffsetY = pointer.y - this.player.y;
 
-        var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY);
+            var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY);
 
-        var velX = velOffsetX / modulVel
-        var velY = velOffsetY / modulVel
+            var velX = velOffsetX / modulVel
+            var velY = velOffsetY / modulVel
 
-        var bala = this.ammo.create(this.player.x + (this.player.rotation * 100), (this.player.y - 100) + (Math.abs(this.player.rotation) * 50), 'misil');
-        bala.anims.play('misilAnim');
-        bala.setVelocity(velX * BULLET_VEL, velY * BULLET_VEL);
-        bala.setScale(.7);
-       // bala.rotation = -(Math.PI / 2);
-        bala.rotation = -Math.atan(velOffsetX/velOffsetY) - Math.PI / 2;
+            var bala = this.ammo.create(this.player.x + (this.player.rotation * 100), (this.player.y - 100) + (Math.abs(this.player.rotation) * 50), 'misil');
+            bala.anims.play('misilAnim');
+            bala.setVelocity(velX * BULLET_VEL, velY * BULLET_VEL);
+            bala.setScale(.7);
+        // bala.rotation = -(Math.PI / 2);
+            bala.rotation = -Math.atan(velOffsetX/velOffsetY) - Math.PI / 2;
+        }
     }
 
     createBoxAmmo(){
@@ -283,7 +288,7 @@ class CoheteScene extends Phaser.Scene {
         var bY = -1000;
         var caixa = this.boxAmmo.create(bX,bY,'boxAmmo');
         caixa.setScale(0.2);
-        var velY = Phaser.Math.Between(50, 300);
+        var velY = 300;
         caixa.setVelocityY(velY);
         setTimeout(() => {
             this.createBoxAmmo();
@@ -302,5 +307,6 @@ class CoheteScene extends Phaser.Scene {
     }
     collisionBoxAmmoPlayer(player,boxAmmo){
         boxAmmo.destroy();
+        this.nAmmo++;
     }
 }
