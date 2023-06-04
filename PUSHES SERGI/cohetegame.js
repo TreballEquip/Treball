@@ -24,6 +24,10 @@ class CoheteScene extends Phaser.Scene {
         this.gamePaused = false
         this.sky = null;
         this.skySpeed = 0.01;
+        this.land = null;
+        this.m1 = null;
+        this.m2 = null;
+        this.m3 = null;
     }
     preload (){	
         this.load.image('rocket', '../resources/rocket.png');

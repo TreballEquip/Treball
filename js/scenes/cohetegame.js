@@ -29,7 +29,12 @@ class CoheteScene extends Phaser.Scene {
         this.load.image('rocket', '../resources/rocket.png');
         this.load.image('sky','../resources/sky.png');
         this.load.image('enemy','../resources/MIERDA.png');
+        this.load.image('land','../resources/land.png');
+        this.load.image('m1','../resources/m1.png');
+        this.load.image('m2','../resources/m2.png');
+        this.load.image('m3','../resources/m3.png');
 
+        //spritesheet pajaros
         this.load.spritesheet('Bird_BR',
 			'../resources/Pajaritos_brown.png',
 			{ frameWidth: 123, frameHeight: 96 }
@@ -44,6 +49,11 @@ class CoheteScene extends Phaser.Scene {
 			'../resources/Pajaritos_black.png',
 			{ frameWidth: 123, frameHeight: 96 }
 		);
+         //spritesheet misil
+         this.load.spritesheet('misil',
+         '../resources/missil.png',
+         { frameWidth: 71, frameHeight: 19 }
+     );
     }
 
     create(){
@@ -85,12 +95,37 @@ class CoheteScene extends Phaser.Scene {
             frameRate: 10,
             repeat: -1 
         });
+        //misil animacio
+        this.anims.create({
+            key: 'misilAnim',
+            frames: this.anims.generateFrameNumbers('misil', { start: 0, end: 5 }),
+            frameRate: 10,
+            repeat: -1 
+          });
 
 
         //Sky
         this.sky = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, 'sky');
         this.sky.setOrigin(0, 0);
         this.sky.setScale(1);
+
+        //Mountains
+        this.m3 = this.physics.add.sprite(0, 0, 'm3');
+        this.m3.setOrigin(0.05,-0.35);
+        this.m3.setScale(1.2);
+
+        this.m2 = this.physics.add.sprite(0, 0, 'm2');
+        this.m2.setOrigin(0.05,-0.35);
+        this.m2.setScale(1.2);
+
+        this.m1 = this.physics.add.sprite(0, 0, 'm1');
+        this.m1.setOrigin(0.05,-0.35);
+        this.m1.setScale(1.2);
+
+        //Land
+        this.land = this.physics.add.sprite(0, 0, 'land');
+        this.land.setOrigin(0.05,-0.35);
+        this.land.setScale(1.2);
 
         //Player
         this.player = this.physics.add.sprite(config.width / 2, config.height * 0.9, 'rocket');
@@ -147,8 +182,14 @@ class CoheteScene extends Phaser.Scene {
                 this.skySpeed *= 1.01;
             }   
             this.sky.tilePositionY -= this.skySpeed; 
-            
+            this.land.setVelocityY(this.skySpeed*75);
+            this.m1.setVelocityY(this.skySpeed*70);
+            this.m2.setVelocityY(this.skySpeed*65);
+            this.m3.setVelocityY(this.skySpeed*55);
+            //hem de afegir que s'eliminin quan ja no es veuen 
 
+
+        
             //Enemics
 
 
@@ -157,28 +198,26 @@ class CoheteScene extends Phaser.Scene {
         }
     }
     createEnemy() {
-
-        
         //basat en l'altura podem fer pajaros o avions
         //si altura < de noseque
         const birds = ['Bird_WH', 'Bird_BR', 'Bird_BL'];
         const randomBird = birds[Phaser.Math.Between(0, birds.length - 1)];
         
-        var posInicialX = -100
-        var direccio = 1
-        var dirAEsq = Phaser.Math.Between(0, 1)
-        var string_dir = "_right"
+        var posInicialX = -100;
+        var direccio = 1;
+        var dirAEsq = Phaser.Math.Between(0, 1);
+        var string_dir = "_right";
 
         if (dirAEsq) {
-            posInicialX = config.width + 100
-            direccio = -1
-            string_dir = "_left"
+            posInicialX = config.width + 100;
+            direccio = -1;
+            string_dir = "_left";
         }
 
-        var enemy = this.enemies.create(posInicialX, -100, randomBird)
+        var enemy = this.enemies.create(posInicialX, -100, randomBird);
         enemy.anims.play(randomBird+string_dir);
-        enemy.setScale(.5)
-        var velInicialX = Phaser.Math.Between(50, 200)
+        enemy.setScale(.5);
+        var velInicialX = Phaser.Math.Between(50, 200);
 
         enemy.setVelocity(velInicialX * direccio, ENEMY_VEL)
 
@@ -186,24 +225,26 @@ class CoheteScene extends Phaser.Scene {
     }
 
     createBullet(pointer) {
-        var velOffsetX = pointer.x - this.player.x
-        var velOffsetY = pointer.y - this.player.y
+        var velOffsetX = pointer.x - this.player.x;
+        var velOffsetY = pointer.y - this.player.y;
 
-        var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY)
+        var modulVel = Math.sqrt(velOffsetX * velOffsetX + velOffsetY * velOffsetY);
 
-        var bala = this.ammo.create(this.player.x, this.player.y - 65, 'enemy')
-        bala.setVelocity(velOffsetX * BULLET_VEL / modulVel, velOffsetY * BULLET_VEL / modulVel)
-        bala.setScale(.1)
+        var bala = this.ammo.create(this.player.x, this.player.y - 65, 'misil');
+        bala.anims.play('misilAnim');
+        bala.setVelocity(velOffsetX * BULLET_VEL / modulVel, velOffsetY * BULLET_VEL / modulVel);
+        bala.setScale(.7);
+        bala.rotation = -(Math.PI / 2);
     }
 
     collisionEnemyPlayer(enemy, player) {
         this.physics.pause();
         setTimeout(() => loadpage("../"), 3000);
-        this.gameOver = true
+        this.gameOver = true;
     }
     collisionAmmoEnemy(ammo, enemy) {
-        console.log("TOCADO Y HUNDIDO PUTA")
-        ammo.destroy()
-        enemy.destroy()
+        console.log("TOCADO Y HUNDIDO PUTA");
+        ammo.destroy();
+        enemy.destroy();
     }
 }
