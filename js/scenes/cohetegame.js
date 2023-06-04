@@ -262,7 +262,7 @@ class CoheteScene extends Phaser.Scene {
     createBullet(pointer) {
         if(this.nAmmo >0){
             this.nAmmo--;
-            this.scoreText = this.add.text(80, config.height - 62, this.nAmmo, { fontSize: "32px", fill: '#000' });
+            this.scoreText.setText(this.nAmmo);
             var velOffsetX = pointer.x - this.player.x;
             var velOffsetY = pointer.y - this.player.y;
 
@@ -308,5 +308,6 @@ class CoheteScene extends Phaser.Scene {
     collisionBoxAmmoPlayer(player,boxAmmo){
         boxAmmo.destroy();
         this.nAmmo++;
+        this.scoreText.setText(this.nAmmo);
     }
 }
