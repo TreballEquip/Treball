@@ -42,7 +42,7 @@ class CoheteScene extends Phaser.Scene {
     }
     create(){
 
-         //Bird anims
+         //Bird animations
          this.anims.create({
             key: 'bird_right_WH',
             frames: this.anims.generateFrameNumbers('Bird_WH', { start: 0, end: 3 }),
