@@ -30,6 +30,7 @@ class CoheteScene extends Phaser.Scene {
         this.nAmmo = 2;
         this.shield = null;
         this.fuelBarrel = null;
+        this.fuelDownBarrel = null;
     }
     preload (){	
         this.load.image('sky','../resources/background/sky.png');
@@ -42,6 +43,7 @@ class CoheteScene extends Phaser.Scene {
         this.load.image('boxAmmo','../resources/ammoBox.png');
         this.load.image('shield','../resources/shield.png');
         this.load.image('fuelBarrel','../resources/fuelBarrel.png');
+        this.load.image('fuelDownBarrel','../resources/fuelDownBarrel.png');
 
         //spritesheet rocket
         this.load.spritesheet('rocket',
@@ -190,8 +192,11 @@ class CoheteScene extends Phaser.Scene {
         //FuelBarrel
         this.fuelBarrel = this.physics.add.group();
         this.physics.add.overlap(this.fuelBarrel, this.player, (body1, body2) => this.collisionFuelPlayer(body1, body2));
-
-
+        
+        //FuelDOwnBarrel
+        this.fuelDownBarrel = this.physics.add.group();
+        this.physics.add.overlap(this.fuelDownBarrel, this.player, (body1, body2) => this.collisionFuelDownPlayer(body1, body2));
+      
         //UI
         this.scoreText = this.add.text(80, config.height - 62, this.nAmmo, { fontSize: "32px", fill: '#000' });
         this.ammoPhoto = this.add.image(50, config.height - 48, 'ammo_logo')
@@ -208,6 +213,9 @@ class CoheteScene extends Phaser.Scene {
 
         //Llançar power ups
         this.managePowerUps();
+        setTimeout(() => {
+            this.managePowerDowns();
+        }, 2000);
 
         //Quan pasin 15 segons elimina el terra
         setTimeout(() => {
@@ -315,12 +323,23 @@ class CoheteScene extends Phaser.Scene {
             this.createFuel();
         }else if(randomPowerUp == 3){
             this.createShield();
+        }else if(randomPowerUp == 5){
+            this.createFuelDown();
         }
         setTimeout(() => {
             this.managePowerUps();
-        }, 16000 + randomPowerUp*500);
+        }, 16000);
 
     }
+
+    managePowerDowns(){
+        var randomTime = Phaser.Math.Between(1, 15);
+        this.createFuelDown();
+        setTimeout(() => {
+            this.managePowerDowns();
+        }, randomTime*1000);
+    }
+
     createBoxAmmo(){
         // x[50, 850] y=-1000
         //velY = [50,300]
@@ -331,6 +350,9 @@ class CoheteScene extends Phaser.Scene {
         caixa.setScale(0.2);
         var velY = 300;
         caixa.setVelocityY(velY);
+        setTimeout(() => {
+            caixa.destroy();
+        }, 15000);
     }
 
     createShield(){
@@ -343,6 +365,9 @@ class CoheteScene extends Phaser.Scene {
         escut.setScale(0.15);
         var velY = 300;
         escut.setVelocityY(velY);
+        setTimeout(() => {
+            escut.destroy();
+        }, 15000);
     }
 
     createFuel(){
@@ -355,6 +380,22 @@ class CoheteScene extends Phaser.Scene {
         combustible.setScale(0.15);
         var velY = 300;
         combustible.setVelocityY(velY);
+        setTimeout(() => {
+            combustible.destroy();
+        }, 15000);
+    }
+
+    createFuelDown(){
+        console.log("Drop");
+        var bX = Phaser.Math.Between(50, 850);
+        var bY = -1000;
+        var downCombustible = this.fuelDownBarrel.create(bX,bY,'fuelDownBarrel');
+        downCombustible.setScale(0.15);
+        var velY = 300;
+        downCombustible.setVelocityY(velY);
+        setTimeout(() => {
+            downCombustible.destroy();
+        }, 15000);
     }
 
     collisionEnemyPlayer(enemy, player) {
@@ -383,5 +424,10 @@ class CoheteScene extends Phaser.Scene {
     collisionFuelPlayer(player,fuelBarrel){
         fuelBarrel.destroy();
         //Falta completar per incrementar combustible
+    }
+
+    collisionFuelDownPlayer(player,fuelDownBarrel){
+        fuelDownBarrel.destroy();
+        //Falta completar per aumentar el consum durant x segons
     }
 }
