@@ -26,32 +26,37 @@ class CoheteScene extends Phaser.Scene {
         this.skySpeed = 0.01;
     }
     preload (){	
-        this.load.image('rocket', '../resources/rocket.png');
-        this.load.image('sky','../resources/sky.png');
+        this.load.image('sky','../resources/background/sky.png');
         this.load.image('enemy','../resources/MIERDA.png');
-        this.load.image('land','../resources/land.png');
-        this.load.image('m1','../resources/m1.png');
-        this.load.image('m2','../resources/m2.png');
-        this.load.image('m3','../resources/m3.png');
+        this.load.image('land','../resources/background/land.png');
+        this.load.image('m1','../resources/background/m1.png');
+        this.load.image('m2','../resources/background/m2.png');
+        this.load.image('m3','../resources/background/m3.png');
+
+        //spritesheet rocket
+        this.load.spritesheet('rocket',
+			'../resources/cohete/rocket.png',
+			{ frameWidth: 320, frameHeight: 672 }
+		);
 
         //spritesheet pajaros
         this.load.spritesheet('Bird_BR',
-			'../resources/Pajaritos_brown.png',
+			'../resources/enemigos/Pajaritos_brown.png',
 			{ frameWidth: 123, frameHeight: 96 }
 		);
 
         this.load.spritesheet('Bird_WH',
-			'../resources/Pajaritos_white.png',
+			'../resources/enemigos/Pajaritos_white.png',
 			{ frameWidth: 123, frameHeight: 96 }
 		);
 
         this.load.spritesheet('Bird_BL',
-			'../resources/Pajaritos_black.png',
+			'../resources/enemigos/Pajaritos_black.png',
 			{ frameWidth: 123, frameHeight: 96 }
 		);
          //spritesheet misil
          this.load.spritesheet('misil',
-         '../resources/missil.png',
+         '../resources/cohete/missil.png',
          { frameWidth: 71, frameHeight: 19 }
      );
     }
@@ -131,6 +136,14 @@ class CoheteScene extends Phaser.Scene {
         this.player = this.physics.add.sprite(config.width / 2, config.height * 0.9, 'rocket');
         this.player.setCollideWorldBounds(true);
         this.player.setScale(0.22);
+        //player anim
+        this.player.anims.create({
+            key: 'rocketAnim',
+			frames: this.anims.generateFrameNumbers('rocket', { start: 0, end: 8 }),
+			frameRate: 10,
+			repeat: -1
+        });
+        this.player.anims.play('rocketAnim', true);
 
         //Enemy
         this.enemies = this.physics.add.group();
