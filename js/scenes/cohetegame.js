@@ -443,7 +443,6 @@ class CoheteScene extends Phaser.Scene {
             setTimeout(() => loadpage("../"), 3000);
             this.gameOver = true;
         }
-        else enemy.destroy()
     }
     collisionAmmoEnemy(ammo, enemy) {
         ammo.destroy();
